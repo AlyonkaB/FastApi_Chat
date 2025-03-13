@@ -6,7 +6,9 @@ import os
 
 load_dotenv()
 
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql+asyncpg://myuser:mypassword@localhost/chat_db")
+DATABASE_URL = os.getenv(
+    "DATABASE_URL", "postgresql+asyncpg://myuser:mypassword@db:5432/chat_db"
+)
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 

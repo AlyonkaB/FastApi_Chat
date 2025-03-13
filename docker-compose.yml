@@ -12,6 +12,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - chatgpt_network
 
   app:
     build: .
@@ -24,6 +26,17 @@ services:
       - "8000:8000"
     volumes:
       - .:/app
+    networks:
+      - chatgpt_network
+    command: >
+      bash -c "
+        alembic upgrade head &&
+        exec uvicorn src.main:app --host 0.0.0.0 --port 8000
+      "
 
 volumes:
   postgres_data:
+
+networks:
+  chatgpt_network:
+    driver: bridge
