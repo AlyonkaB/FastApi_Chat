@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,7 +11,7 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.post("/", response_model=UserList)
-async def create_new_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
+async def create_new_user(user: Annotated[UserCreate, Depends()], db: AsyncSession = Depends(get_db)):
     db_user = await create_user(db, user)
     if db_user is None:
         raise HTTPException(
@@ -28,7 +30,7 @@ async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
 
 @router.put("/{user_id}", response_model=UserList)
 async def update_existing_user(
-    user_id: int, user_update: UserUpdate, db: AsyncSession = Depends(get_db)
+    user_id: int, user_update: Annotated[UserUpdate, Depends()], db: AsyncSession = Depends(get_db)
 ):
     updated_user = await update_user(db, user_id, user_update)
     if updated_user is None:
