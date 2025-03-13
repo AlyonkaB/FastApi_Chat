@@ -12,7 +12,9 @@ router = APIRouter(prefix="/users", tags=["Users"])
 async def create_new_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
     db_user = await create_user(db, user)
     if db_user is None:
-        raise HTTPException(status_code=400, detail="User with this email already exists")
+        raise HTTPException(
+            status_code=400, detail="User with this email already exists"
+        )
     return db_user
 
 
@@ -25,7 +27,9 @@ async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.put("/{user_id}", response_model=UserList)
-async def update_existing_user(user_id: int, user_update: UserUpdate, db: AsyncSession = Depends(get_db)):
+async def update_existing_user(
+    user_id: int, user_update: UserUpdate, db: AsyncSession = Depends(get_db)
+):
     updated_user = await update_user(db, user_id, user_update)
     if updated_user is None:
         raise HTTPException(status_code=404, detail="User not found")
