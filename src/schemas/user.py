@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, validator
 from typing import Optional
 
 
@@ -11,11 +11,17 @@ class UserList(UserBase):
     id: int
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class UserCreate(UserBase):
     hashed_password: str
+
+    @validator("hashed_password")
+    def check_password(cls, value):
+        if not value:
+            raise ValueError("Password cannot be empty")
+        return value
 
 
 class UserUpdate(BaseModel):
@@ -24,4 +30,4 @@ class UserUpdate(BaseModel):
     hashed_password: Optional[str] = None
 
     class Config:
-        from_attributes = True
+        orm_mode = True

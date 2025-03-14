@@ -1,3 +1,5 @@
+from fastapi import HTTPException
+from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 from sqlalchemy.exc import IntegrityError
@@ -19,10 +21,16 @@ async def get_user_by_email(db: AsyncSession, email: str):
 
 async def create_user(db: AsyncSession, user: UserCreate):
 
+    existing_user = await get_user_by_email(db, user.email)
+    if existing_user:
+        raise HTTPException(status_code=400, detail="Email already registered")
+
+    hashed_password = hash_password(user.hashed_password)
+
     new_user = User(
         username=user.username,
         email=user.email,
-        hashed_password=user.hashed_password,
+        hashed_password=hashed_password,
     )
     db.add(new_user)
     try:
@@ -55,3 +63,10 @@ async def delete_user(db: AsyncSession, user_id: int):
     await db.delete(user)
     await db.commit()
     return user
+
+
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def hash_password(password: str) -> str:
+    return pwd_context.hash(password)
