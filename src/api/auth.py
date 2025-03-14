@@ -19,7 +19,10 @@ def get_config():
 
 @router.post("/login")
 async def login(
-    user: UserLogin, response: Response, Authorize: AuthJWT = Depends(), db: AsyncSession = Depends(get_db),
+    user: UserLogin,
+    response: Response,
+    Authorize: AuthJWT = Depends(),
+    db: AsyncSession = Depends(get_db),
 ):
     try:
         db_user = await get_user_by_username(db, user.username)
@@ -30,11 +33,10 @@ async def login(
 
         access_token = Authorize.create_access_token(subject=db_user.username)
         response.set_cookie(
-            key="access_token",
+            key="access_token_cookie",
             value=access_token,
             httponly=True,
-            secure=True,  # You may want to use this for HTTPS connections
-            samesite="Strict"  # Optional, helps prevent CSRF attacks
+            secure=False,  # You can use True for HTTPS connections
         )
         return {"access_token": access_token}
     except AuthJWTException as e:

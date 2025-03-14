@@ -2,8 +2,9 @@ from pydantic import BaseModel
 
 
 class Settings(BaseModel):
-    authjwt_secret_key: str = "secret"  # Ваш секретний ключ
-    authjwt_algorithm: str = "HS256"  # Алгоритм підпису
+    authjwt_secret_key: str = "secret"
+    authjwt_algorithm: str = "HS256"
+    authjwt_token_location: set = {"cookies"}
     authjwt_access_token_expires: int = 3600
 
 
