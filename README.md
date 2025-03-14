@@ -31,3 +31,11 @@ POSTGRES_PASSWORD=
 POSTGRES_DB=
 DATABASE_URL=
 ```
+
+### Running the containers via Makefile
+
+`make up`
+
+### Stopping the containers via Makefile
+
+`make down`
