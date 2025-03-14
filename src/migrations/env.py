@@ -8,6 +8,9 @@ from sqlalchemy import pool
 from alembic import context
 
 from src.models.user import User
+from src.models.message import Message
+from src.models.chat import Chat
+
 from src.databases.database import Base
 
 load_dotenv()
