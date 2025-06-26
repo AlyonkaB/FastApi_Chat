@@ -14,6 +14,7 @@ class Message(Base):
     text = Column(String, nullable=False)
     timestamp = Column(DateTime, default=datetime.utcnow)
     is_read = Column(Boolean, default=False)
+    created_at = Column(DateTime, default=datetime.utcnow)
 
     chat = relationship("Chat", back_populates="messages")
     sender = relationship("User", back_populates="messages")

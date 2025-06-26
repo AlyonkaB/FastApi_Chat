@@ -2,6 +2,7 @@ from typing import Annotated
 
 from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette import status
 
 from src.crud.user import get_user, create_user, update_user, delete_user
 from src.databases.database import get_db
@@ -12,9 +13,9 @@ from src.services.auth import get_current_user
 router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@router.post("/", response_model=UserList)
+@router.post("/", response_model=UserList, status_code=status.HTTP_201_CREATED)
 async def create_new_user(user: UserCreate, db: AsyncSession = Depends(get_db)):
-    db_user = await create_user(db, user)
+    db_user = await create_user(db, user.username, user.email, user.hashed_password)
     if db_user is None:
         raise HTTPException(
             status_code=400, detail="User with this email already exists"

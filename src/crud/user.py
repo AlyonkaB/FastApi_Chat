@@ -1,12 +1,9 @@
-from fastapi import HTTPException
 from passlib.context import CryptContext
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import selectinload
 
 from src.models.user import User
-from src.schemas.user import UserCreate, UserUpdate
+from src.schemas.user import UserUpdate
 
 
 async def get_user(db: AsyncSession, user_id: int):
@@ -14,32 +11,20 @@ async def get_user(db: AsyncSession, user_id: int):
     return result.scalar_one_or_none()
 
 
-async def get_user_by_email(db: AsyncSession, email: str):
-    result = await db.execute(select(User).where(User.email == email))
-    return result.scalar_one_or_none()
-
-
-async def create_user(db: AsyncSession, user: UserCreate):
-
-    existing_user = await get_user_by_email(db, user.email)
-    if existing_user:
-        raise HTTPException(status_code=400, detail="Email already registered")
-
-    hashed_password = hash_password(user.hashed_password)
+async def create_user(db: AsyncSession, username: str, email: str, password: str):
+    hashed_password = hash_password(password)
 
     new_user = User(
-        username=user.username,
-        email=user.email,
+        username=username,
+        email=email,
         hashed_password=hashed_password,
     )
     db.add(new_user)
-    try:
-        await db.commit()
-        await db.refresh(new_user)
-        return new_user
-    except IntegrityError:
-        await db.rollback()
-        return None
+
+    await db.commit()
+    await db.refresh(new_user)
+
+    return new_user
 
 
 async def update_user(db: AsyncSession, user_id: int, user_update: UserUpdate):
@@ -47,7 +32,10 @@ async def update_user(db: AsyncSession, user_id: int, user_update: UserUpdate):
     if not user:
         return None
 
-    for key, value in user_update.model_dump(exclude_unset=True).items():
+    if user_update.hashed_password:
+        user_update.hashed_password = hash_password(user_update.hashed_password)
+
+    for key, value in user_update.dict(exclude_unset=True).items():
         setattr(user, key, value)
 
     await db.commit()
