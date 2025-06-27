@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from src.sockets.chat import router as user_router
+from src.sockets.api_chat import router as user_router
 
 
 socket_router = APIRouter()
